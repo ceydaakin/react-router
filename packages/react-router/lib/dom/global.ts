@@ -9,21 +9,11 @@ export type WindowReactRouterContext = ServerHandoff & {
   streamController: ReadableStreamDefaultController<Uint8Array>;
 };
 
-export interface ViewTransition {
-  finished: Promise<void>;
-  ready: Promise<void>;
-  updateCallbackDone: Promise<void>;
-  skipTransition(): void;
-}
-
 declare global {
   // TODO: (v9) Can this go away in favor of "just use remix"?
   var __staticRouterHydrationData: HydrationState | undefined;
   // v6 SPA info
   var __reactRouterVersion: string;
-  interface Document {
-    startViewTransition(cb: () => Promise<void> | void): ViewTransition;
-  }
   var __reactRouterContext: WindowReactRouterContext | undefined;
   var __reactRouterManifest: AssetsManifest | undefined;
   var __reactRouterRouteModules: RouteModules | undefined;

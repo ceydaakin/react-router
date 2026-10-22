@@ -59,6 +59,23 @@ test("custom fetch context narrowing", async ({ edit, $ }) => {
   await $("pnpm typecheck");
 });
 
+test("native document.startViewTransition type is preserved", async ({
+  edit,
+  $,
+}) => {
+  await edit({
+    "app/view-transition.ts": tsx`
+      import "react-router";
+      import "react-router/dom";
+
+      export const transition: ViewTransition = document.startViewTransition(
+        () => {},
+      );
+    `,
+  });
+  await $("pnpm typecheck");
+});
+
 test.describe("typegen", () => {
   test("basic", async ({ edit, $ }) => {
     await edit({

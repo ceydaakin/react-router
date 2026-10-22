@@ -75,7 +75,6 @@ import {
   useRoutesImpl,
 } from "./hooks";
 import { FrameworkContext } from "./dom/ssr/components";
-import type { ViewTransition } from "./dom/global";
 import { warnOnce } from "./server-runtime/warnings";
 import type { ClientInstrumentation } from "./router/instrumentation";
 import {
