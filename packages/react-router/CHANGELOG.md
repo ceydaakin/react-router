@@ -1,5 +1,12 @@
 # `react-router`
 
+## v8.5.1
+
+### Patch Changes
+
+- Fix `URIError: URI malformed` when an API-only (`ssr: "unstable_api-only"`) server or an `ssr: false` dev server receives a URL path with a malformed percent-encoding ([#15649](https://github.com/remix-run/react-router/pull/15649))
+- Skip `deleteData` in `destroySession` when the session has no ID, so destroying a session without a cookie no longer fails on storage that rejects an empty key ([#15639](https://github.com/remix-run/react-router/pull/15639))
+
 ## v8.5.0
 
 ### Minor Changes
