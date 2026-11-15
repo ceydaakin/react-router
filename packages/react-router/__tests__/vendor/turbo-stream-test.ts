@@ -779,6 +779,41 @@ test("should encode and decode large payload and yield the event loop", async ()
   await decoded.done;
 });
 
+test("should not leave unhandled rejections when the stream errors after the first line", async () => {
+  const unhandled: unknown[] = [];
+  const onUnhandledRejection = (reason: unknown) => unhandled.push(reason);
+  process.on("unhandledRejection", onUnhandledRejection);
+  try {
+    const error = new TypeError("network error");
+    let pulls = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (++pulls === 1) {
+          controller.enqueue(
+            new TextEncoder().encode(
+              '[{"_1":2},"root",{"_3":4},"data","ok"]\n',
+            ),
+          );
+        } else {
+          controller.error(error);
+        }
+      },
+    });
+
+    const decoded = await decode(body);
+    expect(decoded.value).toEqual({ root: { data: "ok" } });
+
+    // Unhandled rejections are reported after the event loop turns.
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(unhandled).toEqual([]);
+
+    // A caller that awaits `done` still sees the error.
+    await expect(decoded.done).rejects.toBe(error);
+  } finally {
+    process.off("unhandledRejection", onUnhandledRejection);
+  }
+});
+
 type Nested = { value: number; next: Nested | null };
 function createDeeplyNestedObject(): Nested {
   const depth = 100000;

@@ -23,6 +23,10 @@ export async function decode(
   const { plugins } = options ?? {};
 
   const done = new Deferred<void>();
+  // Callers may only read `value` (single fetch never awaits `done`), so a
+  // stream that errors after the first line must not leave these rejections
+  // unhandled. Callers that await `done` still receive the error.
+  done.promise.catch(() => {});
   const reader = readable
     .pipeThrough(createLineSplittingTransform())
     .getReader();
@@ -52,8 +56,11 @@ export async function decode(
       });
   }
 
+  const finished = donePromise.then(() => reader.closed);
+  finished.catch(() => {});
+
   return {
-    done: donePromise.then(() => reader.closed),
+    done: finished,
     value: decoded.value,
   };
 }
